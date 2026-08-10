@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "534816552268",
+    "project_id": "towerofhanoi-705de",
+    "storage_bucket": "towerofhanoi-705de.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:534816552268:android:6f65b79f4ad1e8c155cbe9",
+        "android_client_info": {
+          "package_name": "com.example.towerofhanoi"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCr9FlKyn3VYzZGfeSDXbYEAi7iiJAxVyo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
