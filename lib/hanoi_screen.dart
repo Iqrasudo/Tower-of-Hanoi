@@ -1323,25 +1323,35 @@ stopTimer();
             children: [
 
               const SizedBox(height: 50),
-Row(
-  mainAxisAlignment: MainAxisAlignment.center,
+Padding(
+  padding: const EdgeInsets.symmetric(horizontal: 10),
+  child: Row(
+  mainAxisAlignment: MainAxisAlignment.spaceBetween,
   children: [
-  const Text(
+  Expanded(
+    child: FittedBox(
+      fit: BoxFit.scaleDown,
+      alignment: Alignment.centerLeft,
+      child: Text(
 
-    "TOWER OF HANOI",
+        "TOWER OF HANOI",
 
-    style: TextStyle(
+        style: TextStyle(
 
-      color: Colors.white,
+          color: Colors.white,
 
-      fontSize: 26,
+          fontSize: 26,
 
-      fontWeight: FontWeight.bold,
+          fontWeight: FontWeight.bold,
 
-      letterSpacing: 3,
+          letterSpacing: 3,
+        ),
+      ),
     ),
   ),
   IconButton(
+    padding: const EdgeInsets.all(4),
+    constraints: const BoxConstraints(minWidth: 34, minHeight: 34),
     onPressed: () {
       SoundService.instance.playClick();
       Navigator.push(
@@ -1354,9 +1364,12 @@ Row(
     icon: const Icon(
       Icons.palette_outlined,
       color: Colors.white70,
+      size: 20,
     ),
   ),
   IconButton(
+    padding: const EdgeInsets.all(4),
+    constraints: const BoxConstraints(minWidth: 34, minHeight: 34),
     onPressed: () {
       setState(() {
         soundMuted = !soundMuted;
@@ -1366,9 +1379,12 @@ Row(
     icon: Icon(
       soundMuted ? Icons.volume_off : Icons.volume_up,
       color: Colors.white70,
+      size: 20,
     ),
   ),
   IconButton(
+    padding: const EdgeInsets.all(4),
+    constraints: const BoxConstraints(minWidth: 34, minHeight: 34),
     onPressed: () {
       SoundService.instance.playClick();
       Navigator.push(
@@ -1381,9 +1397,12 @@ Row(
     icon: const Icon(
       Icons.card_membership,
       color: Colors.white70,
+      size: 20,
     ),
   ),
   IconButton(
+    padding: const EdgeInsets.all(4),
+    constraints: const BoxConstraints(minWidth: 34, minHeight: 34),
     onPressed: () async {
 
       await FirebaseAuth.instance.signOut();
@@ -1399,9 +1418,11 @@ Row(
     icon: const Icon(
       Icons.logout,
       color: Colors.white70,
+      size: 20,
     ),
   ),
 ],),
+),
 
 
               const SizedBox(height: 10),
