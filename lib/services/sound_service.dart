@@ -20,8 +20,10 @@ class SoundService {
   final AudioPlayer _clickPlayer = AudioPlayer();
   final AudioPlayer _chimePlayer = AudioPlayer();
   final AudioPlayer _unlockPlayer = AudioPlayer();
+  final AudioPlayer _ambientPlayer = AudioPlayer();
 
   bool isMuted = false;
+  bool _ambientStarted = false;
 
   Future<void> init() async {
     await _movePlayer.setPlayerMode(PlayerMode.lowLatency);
@@ -30,10 +32,42 @@ class SoundService {
     await _clickPlayer.setPlayerMode(PlayerMode.lowLatency);
     await _chimePlayer.setPlayerMode(PlayerMode.mediaPlayer);
     await _unlockPlayer.setPlayerMode(PlayerMode.mediaPlayer);
+    await _ambientPlayer.setPlayerMode(PlayerMode.mediaPlayer);
+    await _ambientPlayer.setReleaseMode(ReleaseMode.loop);
+    await _ambientPlayer.setVolume(0.18);
+  }
+
+  /// Starts the soft looping ambient sound behind the falling dots.
+  /// Safe to call from every screen's initState — it only actually starts
+  /// once and just keeps looping quietly across navigation.
+  Future<void> startAmbient() async {
+    if (_ambientStarted || isMuted) return;
+    _ambientStarted = true;
+    try {
+      await _ambientPlayer.play(AssetSource('sounds/ambient.wav'));
+    } catch (_) {
+      _ambientStarted = false;
+    }
+  }
+
+  Future<void> stopAmbient() async {
+    _ambientStarted = false;
+    try {
+      await _ambientPlayer.stop();
+    } catch (_) {}
   }
 
   void toggleMute() {
     isMuted = !isMuted;
+    if (isMuted) {
+      _ambientPlayer.pause();
+    } else {
+      if (_ambientStarted) {
+        _ambientPlayer.resume();
+      } else {
+        startAmbient();
+      }
+    }
   }
 
   /// Soft UI tap sound — use on every button press across every screen.
@@ -96,5 +130,6 @@ class SoundService {
     _clickPlayer.dispose();
     _chimePlayer.dispose();
     _unlockPlayer.dispose();
+    _ambientPlayer.dispose();
   }
 }

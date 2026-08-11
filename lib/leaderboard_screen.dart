@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'services/sound_service.dart';
+import 'services/theme_service.dart';
 
 class LeaderboardScreen extends StatefulWidget {
   const LeaderboardScreen({super.key});
@@ -28,6 +29,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen>
   void initState() {
     super.initState();
     SoundService.instance.playChime();
+    SoundService.instance.startAmbient();
 
     _controller = AnimationController(
       vsync: this,
@@ -48,11 +50,14 @@ class _LeaderboardScreenState extends State<LeaderboardScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFF0B0B0D),
+    return ValueListenableBuilder<AppTheme>(
+      valueListenable: ThemeService.instance.current,
+      builder: (context, theme, _) {
+        return Scaffold(
+      backgroundColor: theme.background,
 
       appBar: AppBar(
-        backgroundColor: const Color(0xFF11012C),
+        backgroundColor: theme.headerBackground,
         elevation: 10,
 foregroundColor: Colors.white,
         leading: IconButton(
@@ -316,6 +321,8 @@ foregroundColor: Colors.white,
           },
         ),
       ),
+    );
+      },
     );
   }
 }

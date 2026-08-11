@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'SplashScreen.dart';
 import 'services/certificate_service.dart';
 import 'services/sound_service.dart';
+import 'services/theme_service.dart';
 
 class VerifyCertificateScreen extends StatefulWidget {
   const VerifyCertificateScreen({super.key});
@@ -17,6 +18,13 @@ class _VerifyCertificateScreenState extends State<VerifyCertificateScreen> {
   bool _loading = false;
   bool _searched = false;
   MasterCertificateData? _result;
+
+  @override
+  void initState() {
+    super.initState();
+    SoundService.instance.playChime();
+    SoundService.instance.startAmbient();
+  }
 
   Future<void> _verify() async {
     SoundService.instance.playClick();
@@ -43,10 +51,13 @@ class _VerifyCertificateScreenState extends State<VerifyCertificateScreen> {
 
   @override
   Widget build(BuildContext context) {
+    return ValueListenableBuilder<AppTheme>(
+      valueListenable: ThemeService.instance.current,
+      builder: (context, theme, _) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0B0B0D),
+      backgroundColor: theme.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF11012C),
+        backgroundColor: theme.headerBackground,
         foregroundColor: Colors.white,
         elevation: 10,
         title: const Text(
@@ -107,7 +118,7 @@ class _VerifyCertificateScreenState extends State<VerifyCertificateScreen> {
                   icon: const Icon(Icons.search),
                   label: const Text("Verify"),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.redAccent,
+                    backgroundColor: theme.accent,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 15),
                     shape: RoundedRectangleBorder(
@@ -119,8 +130,8 @@ class _VerifyCertificateScreenState extends State<VerifyCertificateScreen> {
                 const SizedBox(height: 26),
 
                 if (_loading)
-                  const Center(
-                    child: CircularProgressIndicator(color: Colors.redAccent),
+                  Center(
+                    child: CircularProgressIndicator(color: theme.accent),
                   ),
 
                 if (!_loading && _searched) _buildResult(),
@@ -129,6 +140,8 @@ class _VerifyCertificateScreenState extends State<VerifyCertificateScreen> {
           ),
         ],
       ),
+    );
+      },
     );
   }
 

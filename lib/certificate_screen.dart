@@ -4,6 +4,7 @@ import 'package:printing/printing.dart';
 import 'SplashScreen.dart';
 import 'services/certificate_service.dart';
 import 'services/sound_service.dart';
+import 'services/theme_service.dart';
 import 'verify_certificate_screen.dart';
 
 class CertificateScreen extends StatefulWidget {
@@ -22,6 +23,7 @@ class _CertificateScreenState extends State<CertificateScreen> {
   void initState() {
     super.initState();
     SoundService.instance.playChime();
+    SoundService.instance.startAmbient();
     _future = CertificateService.fetchMyCertificate();
   }
 
@@ -70,12 +72,15 @@ class _CertificateScreenState extends State<CertificateScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final gold = const Color(0xFFD4AF37);
+    return ValueListenableBuilder<AppTheme>(
+      valueListenable: ThemeService.instance.current,
+      builder: (context, theme, _) {
+    final gold = theme.secondaryAccent;
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0B0B0D),
+      backgroundColor: theme.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF11012C),
+        backgroundColor: theme.headerBackground,
         foregroundColor: Colors.white,
         elevation: 10,
         title: const Text(
@@ -146,6 +151,8 @@ class _CertificateScreenState extends State<CertificateScreen> {
             ),
         ],
       ),
+    );
+      },
     );
   }
 
@@ -276,7 +283,7 @@ class _CertificateScreenState extends State<CertificateScreen> {
   }
 
   Widget _buildCertificateView(MasterCertificateData data) {
-    final gold = const Color(0xFFD4AF37);
+    final gold = ThemeService.instance.current.value.secondaryAccent;
     return Column(
       children: [
         Expanded(

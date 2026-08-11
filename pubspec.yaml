@@ -28,6 +28,9 @@ dependencies:
   # Date formatting for certificates
   intl: ^0.19.0
 
+  # Persist selected theme across sessions
+  shared_preferences: ^2.3.2
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

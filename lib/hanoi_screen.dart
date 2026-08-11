@@ -9,8 +9,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'SplashScreen.dart';
 import 'user_input.dart';
 import 'certificate_screen.dart';
+import 'theme_picker_screen.dart';
 import 'services/sound_service.dart';
 import 'services/certificate_service.dart';
+import 'services/theme_service.dart';
 class HanoiScreen extends StatefulWidget {
   final String playerName;
   const HanoiScreen({super.key, required  this.playerName});
@@ -53,12 +55,14 @@ class _HanoiScreenState extends State<HanoiScreen> {
   bool gameStarted = false;
 
   bool soundMuted = false;
+  AppTheme _theme = midnightMaroon;
 
   @override
   void initState() {
     super.initState();
     SoundService.instance.init();
     SoundService.instance.playChime();
+    SoundService.instance.startAmbient();
     loadProgress();
     startGame();
   }
@@ -944,7 +948,7 @@ stopTimer();
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, color: Colors.redAccent, size: 18),
+          Icon(icon, color: _theme.accent, size: 18),
           const SizedBox(width: 8),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -1174,7 +1178,7 @@ stopTimer();
     }
 
     final Color accent = selected
-        ? Colors.redAccent
+        ? _theme.accent
         : isDestination
             ? const Color(0xFF66BB6A)
             : Colors.white54;
@@ -1300,9 +1304,13 @@ stopTimer();
   @override
   Widget build(BuildContext context) {
 
-    return Scaffold(
+    return ValueListenableBuilder<AppTheme>(
+      valueListenable: ThemeService.instance.current,
+      builder: (context, theme, _) {
+        _theme = theme;
+        return Scaffold(
 
-      backgroundColor: const Color(0xFF0B0B0D),
+      backgroundColor: theme.background,
 
       body: Stack(
 
@@ -1335,9 +1343,24 @@ Row(
   ),
   IconButton(
     onPressed: () {
+      SoundService.instance.playClick();
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const ThemePickerScreen(),
+        ),
+      );
+    },
+    icon: const Icon(
+      Icons.palette_outlined,
+      color: Colors.white70,
+    ),
+  ),
+  IconButton(
+    onPressed: () {
       setState(() {
         soundMuted = !soundMuted;
-        SoundService.instance.isMuted = soundMuted;
+        SoundService.instance.toggleMute();
       });
     },
     icon: Icon(
@@ -1386,8 +1409,8 @@ Row(
 
                 widget.playerName,
 
-                style: const TextStyle(
-                  color: Colors.redAccent,
+                style: TextStyle(
+                  color: theme.accent,
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
                   letterSpacing: 2,
@@ -1664,6 +1687,8 @@ Row(
           ),
         ],
       ),
+    );
+      },
     );
   }
 }

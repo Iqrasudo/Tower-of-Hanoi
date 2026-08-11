@@ -3,6 +3,8 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'hanoi_screen.dart';
 import 'slider-1.dart';
+import 'services/theme_service.dart';
+import 'services/sound_service.dart';
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -19,6 +21,11 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   void initState() {
     super.initState();
+
+    ThemeService.instance.load();
+    SoundService.instance.init().then((_) {
+      SoundService.instance.startAmbient();
+    });
 
     controller = AnimationController(
       vsync: this,
@@ -49,79 +56,84 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFF0B0B0D),
+    return ValueListenableBuilder<AppTheme>(
+      valueListenable: ThemeService.instance.current,
+      builder: (context, theme, _) {
+        return Scaffold(
+          backgroundColor: theme.background,
 
-      body: Stack(
-        children: [
-          const DotBackground(),
+          body: Stack(
+            children: [
+              const DotBackground(),
 
-          Center(
-            child: FadeTransition(
-              opacity: fade,
-              child: ScaleTransition(
-                scale: scale,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
+              Center(
+                child: FadeTransition(
+                  opacity: fade,
+                  child: ScaleTransition(
+                    scale: scale,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
 
-                    // ⚫ ICON CARD (dark theme)
-                    Container(
-                      height: 130,
-                      width: 130,
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade900,
-                        borderRadius: BorderRadius.circular(25),
-                        border: Border.all(color: Colors.white12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.6),
-                            blurRadius: 20,
-                          )
-                        ],
-                      ),
-                      child: const Icon(
-                        Icons.extension_rounded,
-                        size: 70,
-                        color: Colors.white70,
-                      ),
+                        // ⚫ ICON CARD (dark theme)
+                        Container(
+                          height: 130,
+                          width: 130,
+                          decoration: BoxDecoration(
+                            color: theme.headerBackground,
+                            borderRadius: BorderRadius.circular(25),
+                            border: Border.all(color: Colors.white12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.6),
+                                blurRadius: 20,
+                              )
+                            ],
+                          ),
+                          child: Icon(
+                            Icons.extension_rounded,
+                            size: 70,
+                            color: theme.secondaryAccent,
+                          ),
+                        ),
+
+                        const SizedBox(height: 25),
+
+                        const Text(
+                          "TOWER OF HANOI",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 2,
+                          ),
+                        ),
+
+                        const SizedBox(height: 8),
+
+                        const Text(
+                          "Recursion Puzzle Game",
+                          style: TextStyle(
+                            color: Colors.white54,
+                            fontSize: 16,
+                          ),
+                        ),
+
+                        const SizedBox(height: 35),
+
+                        CircularProgressIndicator(
+                          color: theme.accent,
+                          strokeWidth: 2,
+                        ),
+                      ],
                     ),
-
-                    const SizedBox(height: 25),
-
-                    const Text(
-                      "TOWER OF HANOI",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 2,
-                      ),
-                    ),
-
-                    const SizedBox(height: 8),
-
-                    const Text(
-                      "Recursion Puzzle Game",
-                      style: TextStyle(
-                        color: Colors.white54,
-                        fontSize: 16,
-                      ),
-                    ),
-
-                    const SizedBox(height: 35),
-
-                    const CircularProgressIndicator(
-                      color: Colors.white70,
-                      strokeWidth: 2,
-                    ),
-                  ],
+                  ),
                 ),
               ),
-            ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
@@ -152,12 +164,21 @@ class _DotBackgroundState extends State<DotBackground>
   }
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: controller,
-      builder: (_, __) {
-        return CustomPaint(
-          painter: DotPainter(controller.value),
-          size: Size.infinite,
+    return ValueListenableBuilder<AppTheme>(
+      valueListenable: ThemeService.instance.current,
+      builder: (context, theme, _) {
+        return AnimatedBuilder(
+          animation: controller,
+          builder: (_, __) {
+            return CustomPaint(
+              painter: DotPainter(
+                controller.value,
+                theme.dotColorA,
+                theme.dotColorB,
+              ),
+              size: Size.infinite,
+            );
+          },
         );
       },
     );
@@ -166,8 +187,10 @@ class _DotBackgroundState extends State<DotBackground>
 
 class DotPainter extends CustomPainter {
   final double value;
+  final Color colorA;
+  final Color colorB;
 
-  DotPainter(this.value);
+  DotPainter(this.value, this.colorA, this.colorB);
 
   // Deterministic pseudo-random values so every dot keeps a stable
   // size / speed / sway across frames instead of jumping around.
@@ -203,12 +226,11 @@ class DotPainter extends CustomPainter {
           (size.height + 40) -
           20;
 
-      // Every ~12th dot carries a warm accent tint instead of plain
-      // white — a subtle nod to the app's red/gold theme.
+      // Every ~12th dot carries a theme accent tint instead of plain
+      // white — reflects whichever theme the player picked.
       final bool isAccent = i % 12 == 0;
-      final Color dotColor = isAccent
-          ? const Color(0xFFE53935)
-          : (i % 12 == 6 ? const Color(0xFFFFD700) : Colors.white);
+      final Color dotColor =
+          isAccent ? colorA : (i % 12 == 6 ? colorB : Colors.white);
 
       final paint = Paint()..color = dotColor.withOpacity(opacity);
 

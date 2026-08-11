@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:github_sign_in_plus/github_sign_in_plus.dart';
 import 'SplashScreen.dart';
 import 'services/sound_service.dart';
+import 'services/theme_service.dart';
 class UserInputScreen extends StatefulWidget {
   const UserInputScreen({super.key});
 
@@ -23,6 +24,7 @@ class _UserInputScreenState extends State<UserInputScreen>
     super.initState();
     SoundService.instance.init();
     SoundService.instance.playChime();
+    SoundService.instance.startAmbient();
 
     _pulseController = AnimationController(
       vsync: this,
@@ -102,14 +104,17 @@ class _UserInputScreenState extends State<UserInputScreen>
   @override
   Widget build(BuildContext context) {
 
-    return Scaffold(
+    return ValueListenableBuilder<AppTheme>(
+      valueListenable: ThemeService.instance.current,
+      builder: (context, theme, _) {
+        return Scaffold(
 
-      backgroundColor: const Color(0xFF0B0B0D),
+          backgroundColor: theme.background,
 
-      body: Stack(children: [
-      const Positioned.fill(
-      child: DotBackground(),
-    ),
+          body: Stack(children: [
+          const Positioned.fill(
+          child: DotBackground(),
+        ),
         Center(
 
         child: Padding(
@@ -232,7 +237,7 @@ class _UserInputScreenState extends State<UserInputScreen>
                 ),
 
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.black,
+                  backgroundColor: theme.headerBackground,
                   padding: const EdgeInsets.symmetric(
                     horizontal: 25,
                     vertical: 18,
@@ -240,7 +245,7 @@ class _UserInputScreenState extends State<UserInputScreen>
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
-                  side: const BorderSide(color: Colors.white24),
+                  side: BorderSide(color: theme.accent.withOpacity(0.5)),
                 ),
               ),
             ],
@@ -250,6 +255,8 @@ class _UserInputScreenState extends State<UserInputScreen>
       ),
     ]
     ),
+    );
+      },
     );
   }
 }
